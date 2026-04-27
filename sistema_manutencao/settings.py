@@ -126,6 +126,19 @@ LOGOUT_REDIRECT_URL = "/login/"
 ADMIN_URL = "admin/"
 
 
+import os
+
+# Arquivos estáticos
+STATIC_URL  = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # pasta onde collectstatic vai copiar tudo
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'manutencao', 'static'),   # onde está seu logo.png
+]
+
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
 try:
     from sistema_manutencao.local_settings import *
 except ImportError:
