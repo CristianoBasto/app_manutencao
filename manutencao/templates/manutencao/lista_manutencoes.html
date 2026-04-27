@@ -1,0 +1,162 @@
+<!-- ================================================
+     lista_manutencoes.html
+     ================================================ -->
+{% extends "manutencao/base.html" %}
+{% block conteudo %}
+
+<div class="toolbar">
+  <h1>📋 Manutenções</h1>
+  <a href="{% url 'exportar_pdf' %}?{% if filtro_mes %}mes={{ filtro_mes }}&{% endif %}{% if filtro_ano %}ano={{ filtro_ano }}&{% endif %}{% if filtro_status %}status={{ filtro_status }}&{% endif %}{% if filtro_oficina %}oficina={{ filtro_oficina }}{% endif %}" class="btn btn-pdf">📄 Exportar PDF</a>
+</div>
+
+<form method="get" class="filtros">
+  <div>
+    <label style="font-size:.8rem;font-weight:600;">Mês</label>
+    <select name="mes" onchange="this.form.submit()">
+      <option value="">Todos</option>
+      <option value="1"  {% if filtro_mes == "1"  %}selected{% endif %}>Janeiro</option>
+      <option value="2"  {% if filtro_mes == "2"  %}selected{% endif %}>Fevereiro</option>
+      <option value="3"  {% if filtro_mes == "3"  %}selected{% endif %}>Março</option>
+      <option value="4"  {% if filtro_mes == "4"  %}selected{% endif %}>Abril</option>
+      <option value="5"  {% if filtro_mes == "5"  %}selected{% endif %}>Maio</option>
+      <option value="6"  {% if filtro_mes == "6"  %}selected{% endif %}>Junho</option>
+      <option value="7"  {% if filtro_mes == "7"  %}selected{% endif %}>Julho</option>
+      <option value="8"  {% if filtro_mes == "8"  %}selected{% endif %}>Agosto</option>
+      <option value="9"  {% if filtro_mes == "9"  %}selected{% endif %}>Setembro</option>
+      <option value="10" {% if filtro_mes == "10" %}selected{% endif %}>Outubro</option>
+      <option value="11" {% if filtro_mes == "11" %}selected{% endif %}>Novembro</option>
+      <option value="12" {% if filtro_mes == "12" %}selected{% endif %}>Dezembro</option>
+    </select>
+  </div>
+  <div>
+    <label style="font-size:.8rem;font-weight:600;">Ano</label>
+    <select name="ano" onchange="this.form.submit()">
+      <option value="">Todos</option>
+      {% for a in anos_disponiveis %}
+      <option value="{{ a }}" {% if filtro_ano == a|stringformat:"s" %}selected{% endif %}>{{ a }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div>
+    <label style="font-size:.8rem;font-weight:600;">Status</label>
+    <select name="status" onchange="this.form.submit()">
+      <option value="">Todos</option>
+      <option value="aguardando_orcamento" {% if filtro_status == "aguardando_orcamento" %}selected{% endif %}>Aguardando Orçamento</option>
+      <option value="orcamento_aprovado"   {% if filtro_status == "orcamento_aprovado"   %}selected{% endif %}>Orçamento Aprovado</option>
+      <option value="concluida"            {% if filtro_status == "concluida"            %}selected{% endif %}>Concluída</option>
+    </select>
+  </div>
+  <div>
+    <label style="font-size:.8rem;font-weight:600;">Equipamento</label>
+    <select name="equipamento" onchange="this.form.submit()">
+      <option value="">Todos</option>
+      {% for eq in equipamentos %}
+      <option value="{{ eq.pk }}" {% if filtro_eq == eq.pk|stringformat:"s" %}selected{% endif %}>{{ eq.nome }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div>
+    <label style="font-size:.8rem;font-weight:600;">Oficina</label>
+    <select name="oficina" onchange="this.form.submit()">
+      <option value="">Todas</option>
+      {% for of in oficinas %}
+      <option value="{{ of.pk }}" {% if filtro_oficina == of.pk|stringformat:"s" %}selected{% endif %}>{{ of.nome }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <a href="{% url 'lista_manutencoes' %}" class="btn btn-primary">Limpar</a>
+</form>
+
+<table>
+  <thead>
+    <tr>
+      <th>Equipamento</th><th>Tipo</th><th>Descrição</th>
+      <th>Registro</th><th>Data prevista</th><th>Horímetro</th><th>Oficina</th><th>Status</th><th>Responsável</th><th>Dias até conclusão</th><th>Ação</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for m in manutencoes %}
+    <tr>
+      <td>
+        {% if m.status != "concluida" and m.criado_por == request.user %}
+          <a href="{% url 'editar_manutencao' m.pk %}" style="color:#1e3a5f;font-weight:600;text-decoration:none;">{{ m.equipamento }}</a>
+        {% else %}
+          {{ m.equipamento }}
+        {% endif %}
+      </td>
+      <td><span class="badge {{ m.tipo }}">{{ m.get_tipo_display }}</span></td>
+      <td>{{ m.descricao }}</td>
+      <td>{{ m.data_registro|date:"d/m/Y" }}</td>
+      <td>{{ m.data_prevista|date:"d/m/Y" }}</td>
+      <td>{% if m.horimetro is not None %}{{ m.horimetro }} h{% else %}—{% endif %}</td>
+      <td>{{ m.oficina.nome|default:"—" }}</td>
+      <td><span class="badge {{ m.status }}">{{ m.get_status_display }}</span></td>
+      <td>{{ m.responsavel|default:"—" }}</td>
+      <td>
+        {% if m.dias_ate_conclusao is not None %}
+          {{ m.dias_ate_conclusao }} dia{{ m.dias_ate_conclusao|pluralize }}
+        {% else %}
+          —
+        {% endif %}
+      </td>
+      <td>
+        {% if m.status != "concluida" %}
+        <a href="{% url 'concluir_manutencao' m.pk %}" class="btn btn-success">✔ Concluir</a>
+        {% else %}
+        <span style="color:#718096;font-size:.85rem;">{{ m.data_realizada|date:"d/m/Y" }}</span>
+        {% endif %}
+      </td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="11" style="text-align:center;color:#718096;padding:2rem;">Nenhuma manutenção encontrada.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<!-- Paginação -->
+{% if pagina.paginator.num_pages > 1 %}
+<div style="display:flex;align-items:center;justify-content:center;gap:.5rem;margin-top:1.5rem;flex-wrap:wrap;">
+
+  {% if pagina.has_previous %}
+  <a href="?{{ query_string }}&pagina={{ pagina.previous_page_number }}"
+     style="display:inline-block;padding:.4rem .9rem;border-radius:6px;background:#1e3a5f;color:#fff;text-decoration:none;font-size:.85rem;">
+    ← Anterior
+  </a>
+  {% else %}
+  <span style="display:inline-block;padding:.4rem .9rem;border-radius:6px;background:#e2e8f0;color:#a0aec0;font-size:.85rem;">
+    ← Anterior
+  </span>
+  {% endif %}
+
+  {% for num in pagina.paginator.page_range %}
+    {% if pagina.number == num %}
+    <span style="display:inline-block;padding:.4rem .75rem;border-radius:6px;background:#1e3a5f;color:#fff;font-weight:700;font-size:.85rem;">
+      {{ num }}
+    </span>
+    {% elif num >= pagina.number|add:"-2" and num <= pagina.number|add:"2" %}
+    <a href="?{{ query_string }}&pagina={{ num }}"
+       style="display:inline-block;padding:.4rem .75rem;border-radius:6px;background:#fff;color:#1e3a5f;border:1px solid #cbd5e0;text-decoration:none;font-size:.85rem;">
+      {{ num }}
+    </a>
+    {% endif %}
+  {% endfor %}
+
+  {% if pagina.has_next %}
+  <a href="?{{ query_string }}&pagina={{ pagina.next_page_number }}"
+     style="display:inline-block;padding:.4rem .9rem;border-radius:6px;background:#1e3a5f;color:#fff;text-decoration:none;font-size:.85rem;">
+    Próxima →
+  </a>
+  {% else %}
+  <span style="display:inline-block;padding:.4rem .9rem;border-radius:6px;background:#e2e8f0;color:#a0aec0;font-size:.85rem;">
+    Próxima →
+  </span>
+  {% endif %}
+
+</div>
+<p style="text-align:center;color:#718096;font-size:.8rem;margin-top:.5rem;">
+  Página {{ pagina.number }} de {{ pagina.paginator.num_pages }}
+  — {{ pagina.paginator.count }} registro(s) no total
+</p>
+{% endif %}
+
+{% endblock %}

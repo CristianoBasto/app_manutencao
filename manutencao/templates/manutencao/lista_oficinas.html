@@ -1,0 +1,38 @@
+<!-- ================================================
+     lista_oficinas.html
+     ================================================ -->
+{% extends "manutencao/base.html" %}
+{% block conteudo %}
+
+<div class="toolbar">
+  <h1>🔧 Oficinas</h1>
+  <a href="{% url 'cadastrar_oficina' %}" class="btn btn-primary">+ Nova Oficina</a>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Nome do Estabelecimento</th>
+      <th>Telefone</th>
+      <th>Responsável</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for o in oficinas %}
+    <tr>
+      <td>{{ o.nome }}</td>
+      <td>{{ o.telefone|default:"—" }}</td>
+      <td>{{ o.responsavel|default:"—" }}</td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="3" style="text-align:center;color:#718096;padding:2rem;">
+        Nenhuma oficina cadastrada ainda.
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}
+

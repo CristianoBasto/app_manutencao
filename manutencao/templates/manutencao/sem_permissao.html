@@ -1,0 +1,13 @@
+{% extends "manutencao/base.html" %}
+{% block conteudo %}
+
+<div style="text-align:center;padding:4rem 1rem;">
+  <div style="font-size:3rem;margin-bottom:1rem;">🔒</div>
+  <h1 style="color:#c53030;margin-bottom:1rem;">Acesso negado</h1>
+  <p style="color:#718096;font-size:1rem;max-width:400px;margin:0 auto 2rem;">
+    {{ motivo }}
+  </p>
+  <a href="{% url 'lista_manutencoes' %}" class="btn btn-primary">← Voltar para a lista</a>
+</div>
+
+{% endblock %}

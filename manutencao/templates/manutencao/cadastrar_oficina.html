@@ -1,0 +1,27 @@
+<!-- ================================================
+     cadastrar_oficina.html
+     ================================================ -->
+{% extends "manutencao/base.html" %}
+{% block conteudo %}
+
+<h1>🏪 Nova Oficina</h1>
+<div class="form-card">
+  <form method="post">
+    {% csrf_token %}
+    <div class="campo">
+      <label>Nome do Estabelecimento</label>
+      <input type="text" name="nome" required placeholder="Ex: Oficina do João"/>
+    </div>
+    <div class="campo">
+      <label>Telefone</label>
+      <input type="text" name="telefone" placeholder="Ex: (77) 99999-9999"/>
+    </div>
+    <div class="campo">
+      <label>Responsável</label>
+      <input type="text" name="responsavel" placeholder="Nome do responsável"/>
+    </div>
+    <button type="submit" class="btn btn-primary">Salvar oficina</button>
+  </form>
+</div>
+
+{% endblock %}

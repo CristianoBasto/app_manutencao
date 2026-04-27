@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sistema de Manutenção</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; background: #f0f4f8; color: #1a202c; padding-top: 56px; }
+    nav { background: #1e3a5f; padding: 0 2rem; display: flex; align-items: center; gap: 1.5rem; height: 56px; position: fixed; top: 0; left: 0; right: 0; z-index: 1000; }
+    nav .brand { color: #fff; font-weight: 700; font-size: 1.5rem; text-decoration: none; }
+    nav a { color: #a0bcd8; text-decoration: none; font-size: 1.0rem; }
+    nav a:hover { color: #fff; }
+    nav .spacer { flex: 1; }
+    nav .user-info { color: #a0bcd8; font-size: 1.2rem; }
+    nav .btn-logout { background: rgba(255,255,255,.12); color: #fff; border: none; padding: .3rem .8rem; border-radius: 6px; font-size: .82rem; cursor: pointer; text-decoration: none; }
+    nav .btn-logout:hover { background: rgba(255,255,255,.22); }
+    .container { max-width: 1100px; margin: 2rem auto; padding: 0 1.5rem; display: flex; flex-direction: column; align-items: center; }
+    .container > * { width: 100%; }
+    h1 { font-size: 1.5rem; margin-bottom: 1.5rem; color: #1e3a5f; }
+    h2 { font-size: 1.1rem; margin-bottom: 1rem; color: #2d4a6e; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+    .card { background: #fff; border-radius: 10px; padding: 1.2rem 1.5rem; box-shadow: 0 1px 4px rgba(0,0,0,.08); border-left: 5px solid #a0bcd8; }
+    .card.aguardando { border-color: #f6ad55; }
+    .card.aprovado   { border-color: #63b3ed; }
+    .card.concluida  { border-color: #68d391; }
+    .card .numero   { font-size: 2rem; font-weight: 700; }
+    .card .label    { font-size: .8rem; color: #718096; margin-top: 2px; }
+    table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+    th { background: #1e3a5f; color: #fff; padding: .75rem 1rem; text-align: left; font-size: .85rem; }
+    td { padding: .7rem 1rem; font-size: .9rem; border-bottom: 1px solid #e2e8f0; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #f7fafc; }
+    .badge { display: inline-block; padding: .2rem .6rem; border-radius: 20px; font-size: .75rem; font-weight: 600; }
+    .badge.aguardando_orcamento { background: #fefcbf; color: #b7791f; }
+    .badge.orcamento_aprovado   { background: #bee3f8; color: #2b6cb0; }
+    .badge.concluida            { background: #c6f6d5; color: #276749; }
+    .badge.preventiva { background: #bee3f8; color: #2b6cb0; }
+    .badge.corretiva  { background: #fbd38d; color: #744210; }
+    .btn { display: inline-block; padding: .45rem 1rem; border-radius: 6px; font-size: .85rem; font-weight: 600; text-decoration: none; cursor: pointer; border: none; }
+    .btn-primary { background: #1e3a5f; color: #fff; }
+    .btn-primary:hover { background: #2d4a6e; }
+    .btn-success { background: #38a169; color: #fff; }
+    .btn-success:hover { background: #276749; }
+    .btn-pdf { background: #e53e3e; color: #fff; }
+    .btn-pdf:hover { background: #c53030; }
+    form .campo { margin-bottom: 1rem; }
+    form label { display: block; font-size: .85rem; font-weight: 600; margin-bottom: .3rem; color: #4a5568; }
+    form input, form select, form textarea { width: 100%; padding: .5rem .75rem; border: 1px solid #cbd5e0; border-radius: 6px; font-size: .9rem; background: #fff; }
+    form textarea { resize: vertical; min-height: 80px; }
+    .form-card { background: #fff; border-radius: 10px; padding: 2rem; box-shadow: 0 1px 4px rgba(0,0,0,.08); max-width: 600px; }
+    .filtros { display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; align-items: flex-end; }
+    .filtros select { padding: .4rem .6rem; border: 1px solid #cbd5e0; border-radius: 6px; font-size: .85rem; }
+    .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: .5rem; }
+    .alert-atrasada { background: #fff5f5; border: 1px solid #fc8181; border-radius: 8px; padding: .8rem 1rem; margin-bottom: 1.5rem; color: #c53030; font-size: .9rem; }
+  </style>
+</head>
+<body>
+  <nav>
+    <a class="brand" href="{% url 'dashboard' %}">🔧 SisBastos</a>
+    <a href="{% url 'dashboard' %}">Painel</a>
+    <a href="{% url 'lista_manutencoes' %}">Manutenções</a>
+    <a href="{% url 'cadastrar_manutencao' %}">Iniciar Manutenção</a>
+    <a href="{% url 'cadastrar_equipamento' %}">Cadastrar Equipamento</a>
+    <a href="{% url 'lista_oficinas' %}">Oficinas</a>
+    {% if request.user.is_staff %}
+    <a href="/admin/">Admin</a>
+    {% endif %}
+    <div class="spacer"></div>
+    <span class="user-info">👤 {{ request.user.username | capfirst }}</span>
+    <a href="{% url 'logout' %}" class="btn-logout">Sair</a>
+  </nav>
+  <div class="container">
+    {% block conteudo %}{% endblock %}
+  </div>
+</body>
+</html>

@@ -1,0 +1,54 @@
+{% extends "manutencao/base.html" %}
+{% block conteudo %}
+
+<div class="toolbar">
+  <h1>📊 Painel</h1>
+  <a href="{% url 'exportar_pdf' %}" class="btn btn-pdf">📄 Exportar PDF</a>
+</div>
+
+<div class="cards">
+  <div class="card">
+    <div class="numero">{{ total_equipamentos }}</div>
+    <div class="label">Equipamentos cadastrados</div>
+  </div>
+  <div class="card aguardando">
+    <div class="numero">{{ aguardando_orcamento }}</div>
+    <div class="label">Aguardando Orçamento</div>
+  </div>
+  <div class="card aprovado">
+    <div class="numero">{{ orcamento_aprovado }}</div>
+    <div class="label">Orçamento Aprovado</div>
+  </div>
+  <div class="card concluida">
+    <div class="numero">{{ concluidas }}</div>
+    <div class="label">Concluídas</div>
+  </div>
+</div>
+
+<h2>Manutenções aguardando orçamento</h2>
+{% if proximas %}
+<table>
+  <thead>
+    <tr>
+      <th>Equipamento</th><th>Tipo</th><th>Descrição</th>
+      <th>Data prevista</th><th>Responsável</th><th>Ação</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for m in proximas %}
+    <tr>
+      <td>{{ m.equipamento }}</td>
+      <td><span class="badge {{ m.tipo }}">{{ m.get_tipo_display }}</span></td>
+      <td>{{ m.descricao }}</td>
+      <td>{{ m.data_prevista|date:"d/m/Y" }}</td>
+      <td>{{ m.responsavel|default:"—" }}</td>
+      <td><a href="{% url 'concluir_manutencao' m.pk %}" class="btn btn-success">✔ Concluir</a></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+  <p style="color:#718096;">Nenhuma manutenção pendente. Tudo em dia! 🎉</p>
+{% endif %}
+
+{% endblock %}

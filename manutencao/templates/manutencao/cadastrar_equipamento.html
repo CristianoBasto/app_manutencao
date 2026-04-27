@@ -1,0 +1,28 @@
+<!-- ================================================
+     cadastrar_equipamento.html
+     ================================================ -->
+{% extends "manutencao/base.html" %}
+{% block conteudo %}
+
+<h1>🏭 Novo Equipamento</h1>
+<div class="form-card">
+  <form method="post">
+    {% csrf_token %}
+    <div class="campo">
+      <label>Nome do equipamento</label>
+      <input type="text" name="nome" required placeholder="Ex: Compressor de Ar"/>
+    </div>
+    <div class="campo">
+      <label>Localização</label>
+      <input type="text" name="localizacao" required placeholder="Ex: Setor A - Galpão 1"/>
+    </div>
+    <div class="campo">
+      <label>Descrição (opcional)</label>
+      <textarea name="descricao" placeholder="Modelo, marca, capacidade..."></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Salvar equipamento</button>
+  </form>
+</div>
+
+{% endblock %}
+

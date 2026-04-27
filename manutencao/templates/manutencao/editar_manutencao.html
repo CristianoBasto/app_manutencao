@@ -1,0 +1,89 @@
+{% extends "manutencao/base.html" %}
+{% block conteudo %}
+
+<!-- Select2 CSS -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/css/select2.min.css" rel="stylesheet"/>
+<style>
+  .select2-container--default .select2-selection--single {
+    height: 38px; border: 1px solid #cbd5e0; border-radius: 6px; padding: .3rem .5rem; font-size: .9rem;
+  }
+  .select2-container--default .select2-selection--single .select2-selection__arrow { height: 36px; }
+  .select2-container--default .select2-selection--single .select2-selection__rendered { line-height: 26px; color: #1a202c; }
+  .select2-container--default .select2-results__option--highlighted { background-color: #1e3a5f !important; }
+  .select2-search__field { border: 1px solid #cbd5e0 !important; border-radius: 4px !important; padding: .3rem .5rem !important; font-size: .9rem !important; }
+  .select2-container { width: 100% !important; }
+</style>
+
+<h1>✏️ Editar Manutenção</h1>
+<div class="form-card">
+  <form method="post">
+    {% csrf_token %}
+    <div class="campo">
+      <label>Equipamento</label>
+      <select name="equipamento" id="select-equipamento" required>
+        {% for eq in equipamentos %}
+        <option value="{{ eq.pk }}" {% if eq.pk == m.equipamento_id %}selected{% endif %}>
+          {{ eq.nome }} — {{ eq.localizacao }}
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="campo">
+      <label>Tipo</label>
+      <select name="tipo" required>
+        <option value="preventiva" {% if m.tipo == "preventiva" %}selected{% endif %}>Preventiva</option>
+        <option value="corretiva"  {% if m.tipo == "corretiva"  %}selected{% endif %}>Corretiva</option>
+      </select>
+    </div>
+    <div class="campo">
+      <label>Descrição</label>
+      <textarea name="descricao" required>{{ m.descricao }}</textarea>
+    </div>
+    <div class="campo">
+      <label>Data prevista</label>
+      <input type="date" name="data_prevista" required value="{{ m.data_prevista|date:'Y-m-d' }}"/>
+    </div>
+    <div class="campo">
+      <label>Responsável</label>
+      <input type="text" name="responsavel" value="{{ m.responsavel }}"/>
+    </div>
+    <div class="campo">
+      <label>Horímetro (h)</label>
+      <input type="number" name="horimetro" min="0" value="{{ m.horimetro|default:'' }}"/>
+    </div>
+    <div class="campo">
+      <label>Oficina</label>
+      <select name="oficina" id="select-oficina">
+        <option value="">Nenhuma / Serviço interno</option>
+        {% for of in oficinas %}
+        <option value="{{ of.pk }}" {% if m.oficina_id == of.pk %}selected{% endif %}>
+          {{ of.nome }}{% if of.responsavel %} — {{ of.responsavel }}{% endif %}
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="campo">
+      <label>Status</label>
+      <select name="status" required>
+        <option value="aguardando_orcamento" {% if m.status == "aguardando_orcamento" %}selected{% endif %}>Aguardando Orçamento</option>
+        <option value="orcamento_aprovado"   {% if m.status == "orcamento_aprovado"   %}selected{% endif %}>Orçamento Aprovado</option>
+        <option value="concluida"            {% if m.status == "concluida"            %}selected{% endif %}>Concluída</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:1rem;margin-top:.5rem;">
+      <button type="submit" class="btn btn-primary">Salvar alterações</button>
+      <a href="{% url 'lista_manutencoes' %}" class="btn" style="background:#e2e8f0;color:#4a5568;">Cancelar</a>
+    </div>
+  </form>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/js/select2.min.js"></script>
+<script>
+  $(document).ready(function () {
+    $("#select-equipamento").select2({ allowClear: true, language: { noResults: function(){ return "Nenhum equipamento encontrado."; } } });
+    $("#select-oficina").select2({ allowClear: true, language: { noResults: function(){ return "Nenhuma oficina encontrada."; } } });
+  });
+</script>
+
+{% endblock %}
