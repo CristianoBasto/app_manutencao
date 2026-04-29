@@ -29,10 +29,10 @@ SECRET_KEY = 'django-insecure-_l9*+#7xp)h2l9r9eab_a6zd5s9+aa0pnfv&)qy7!(u=m33qrw
 DEBUG = True
 ALLOWED_HOSTS = ['*']
 
-CSRF_TRUSTED_ORIGINS = [
-    'http://127.0.0.1:8000',
-    'http://localhost:8000',
-]
+# CSRF_TRUSTED_ORIGINS = [
+#     'http://127.0.0.1:8000',
+#     'http://localhost:8000',
+# ]
 
 
 # Application definition
@@ -139,6 +139,27 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # pasta onde coll>
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'manutencao', 'static'),   # onde está seu >
 ]
+
+DEBUG = False
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'ERROR',
+            'class': 'logging.FileHandler',
+            'filename': '/home/cristiano/manutencaoapp/django_errors.log',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+    },
+}
 
 
 
