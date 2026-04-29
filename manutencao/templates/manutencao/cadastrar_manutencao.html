@@ -1,4 +1,3 @@
-
 <!-- ================================================
      cadastrar_manutencao.html
      ================================================ -->
@@ -60,12 +59,16 @@
       <textarea name="descricao" required placeholder="Descreva o serviço..."></textarea>
     </div>
     <div class="campo">
+      <label>Data de Registro</label>
+      <input type="date" name="data_registro" required value="{{ today }}"/>
+    </div>
+    <div class="campo">
       <label>Data prevista</label>
       <input type="date" name="data_prevista" required/>
     </div>
     <div class="campo">
       <label>Responsável</label>
-      <input type="text" name="responsavel" placeholder="Nome do motorista responsável"/>
+      <input type="text" name="responsavel" placeholder="Nome do técnico"/>
     </div>
     <div class="campo">
       <label>Horímetro (h)</label>
@@ -109,3 +112,5 @@
 </script>
 
 {% endblock %}
+
+

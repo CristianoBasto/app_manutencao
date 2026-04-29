@@ -1,24 +1,27 @@
+<!-- ================================================
+     editar_equipamento.html
+     ================================================ -->
 {% extends "manutencao/base.html" %}
 {% block conteudo %}
 
-<h1>🏭 Novo Equipamento</h1>
+<h1>✏️ Editar Equipamento</h1>
 <div class="form-card">
   <form method="post">
     {% csrf_token %}
     <div class="campo">
       <label>Nome do equipamento</label>
-      <input type="text" name="nome" required placeholder="Ex: Compressor de Ar"/>
+      <input type="text" name="nome" required value="{{ eq.nome }}"/>
     </div>
     <div class="campo">
       <label>Localização</label>
-      <input type="text" name="localizacao" required placeholder="Ex: Setor A - Galpão 1"/>
+      <input type="text" name="localizacao" required value="{{ eq.localizacao }}"/>
     </div>
     <div class="campo">
       <label>Descrição (opcional)</label>
-      <textarea name="descricao" placeholder="Modelo, marca, capacidade..."></textarea>
+      <textarea name="descricao">{{ eq.descricao }}</textarea>
     </div>
     <div style="display:flex;gap:1rem;margin-top:.5rem;">
-      <button type="submit" class="btn btn-primary">Salvar equipamento</button>
+      <button type="submit" class="btn btn-primary">Salvar alterações</button>
       <a href="{% url 'lista_equipamentos' %}" class="btn" style="background:#e2e8f0;color:#4a5568;">Cancelar</a>
     </div>
   </form>

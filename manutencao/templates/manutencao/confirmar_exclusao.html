@@ -1,0 +1,24 @@
+<!-- ================================================
+     confirmar_exclusao.html
+     ================================================ -->
+{% extends "manutencao/base.html" %}
+{% block conteudo %}
+
+<div style="text-align:center;padding:4rem 1rem;">
+  <div style="font-size:3rem;margin-bottom:1rem;">🗑️</div>
+  <h1 style="color:#c53030;margin-bottom:1rem;">Confirmar exclusão</h1>
+  <p style="color:#718096;font-size:1rem;max-width:400px;margin:0 auto 2rem;">
+    Tem certeza que deseja excluir <strong>{{ objeto }}</strong>? Esta ação não pode ser desfeita.
+  </p>
+  <form method="post" style="display:inline;">
+    {% csrf_token %}
+    <button type="submit" class="btn" style="background:#e53e3e;color:#fff;margin-right:1rem;">
+      Sim, excluir
+    </button>
+    <a href="{% url voltar %}" class="btn" style="background:#e2e8f0;color:#4a5568;">
+      Cancelar
+    </a>
+  </form>
+</div>
+
+{% endblock %}

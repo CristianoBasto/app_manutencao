@@ -8,11 +8,11 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: system-ui, sans-serif; background: #f0f4f8; color: #1a202c; padding-top: 56px; }
     nav { background: #1e3a5f; padding: 0 2rem; display: flex; align-items: center; gap: 1.5rem; height: 56px; position: fixed; top: 0; left: 0; right: 0; z-index: 1000; }
-    nav .brand { color: #fff; font-weight: 700; font-size: 1.5rem; text-decoration: none; }
-    nav a { color: #a0bcd8; text-decoration: none; font-size: 1.0rem; }
+    nav .brand { color: #fff; font-weight: 700; font-size: 1.7rem; text-decoration: none; }
+    nav a { color: #a0bcd8; text-decoration: none; font-size: 1.3rem; }
     nav a:hover { color: #fff; }
     nav .spacer { flex: 1; }
-    nav .user-info { color: #a0bcd8; font-size: 1.2rem; }
+    nav .user-info { color: #a0bcd8; font-size: 1.3rem; }
     nav .btn-logout { background: rgba(255,255,255,.12); color: #fff; border: none; padding: .3rem .8rem; border-radius: 6px; font-size: .82rem; cursor: pointer; text-decoration: none; }
     nav .btn-logout:hover { background: rgba(255,255,255,.22); }
     .container { max-width: 1100px; margin: 2rem auto; padding: 0 1.5rem; display: flex; flex-direction: column; align-items: center; }
@@ -60,14 +60,14 @@
     <a class="brand" href="{% url 'dashboard' %}">🔧 SisBastos</a>
     <a href="{% url 'dashboard' %}">Painel</a>
     <a href="{% url 'lista_manutencoes' %}">Manutenções</a>
-    <a href="{% url 'cadastrar_manutencao' %}">Iniciar Manutenção</a>
-    <a href="{% url 'cadastrar_equipamento' %}">Cadastrar Equipamento</a>
+    <a href="{% url 'cadastrar_manutencao' %}">Nova Manutenção</a>
+    <a href="{% url 'lista_equipamentos' %}">Equipamentos</a>
     <a href="{% url 'lista_oficinas' %}">Oficinas</a>
     {% if request.user.is_staff %}
     <a href="/admin/">Admin</a>
     {% endif %}
     <div class="spacer"></div>
-    <span class="user-info">👤 {{ request.user.username | capfirst }}</span>
+    <span class="user-info">👤 {{ request.user.username |capfirst }}</span>
     <a href="{% url 'logout' %}" class="btn-logout">Sair</a>
   </nav>
   <div class="container">

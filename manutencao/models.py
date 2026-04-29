@@ -5,6 +5,10 @@ class Oficina(models.Model):
     nome        = models.CharField(max_length=100)
     telefone    = models.CharField(max_length=20, blank=True)
     responsavel = models.CharField(max_length=100, blank=True)
+    criado_por  = models.ForeignKey(
+        "auth.User", on_delete=models.SET_NULL,
+        null=True, blank=True, related_name="oficinas_criadas"
+    )
 
     def __str__(self):
         return self.nome
@@ -19,6 +23,10 @@ class Equipamento(models.Model):
     nome        = models.CharField(max_length=100)
     localizacao = models.CharField(max_length=100)
     descricao   = models.TextField(blank=True)
+    criado_por  = models.ForeignKey(
+        "auth.User", on_delete=models.SET_NULL,
+        null=True, blank=True, related_name="equipamentos_criados"
+    )
 
     def __str__(self):
         return self.nome
@@ -47,7 +55,7 @@ class Manutencao(models.Model):
     )
     tipo           = models.CharField(max_length=20, choices=TIPO_CHOICES)
     descricao      = models.TextField()
-    data_registro  = models.DateField(auto_now_add=True)  # preenchido automaticamente ao salvar
+    data_registro  = models.DateField(verbose_name="Data de Registro")
     data_prevista  = models.DateField()
     data_realizada = models.DateField(null=True, blank=True)
     status         = models.CharField(max_length=30, choices=STATUS_CHOICES, default="aguardando_orcamento")

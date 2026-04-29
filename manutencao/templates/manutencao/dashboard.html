@@ -2,7 +2,7 @@
 {% block conteudo %}
 
 <div class="toolbar">
-  <h1>📊 Painel</h1>
+  <h1>📊 Dashboard</h1>
   <a href="{% url 'exportar_pdf' %}" class="btn btn-pdf">📄 Exportar PDF</a>
 </div>
 
@@ -49,6 +49,131 @@
 </table>
 {% else %}
   <p style="color:#718096;">Nenhuma manutenção pendente. Tudo em dia! 🎉</p>
+{% endif %}
+
+<!-- Gráficos -->
+{% if pizza_labels or linha_labels %}
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:2rem;">
+
+  <!-- Gráfico Pizza -->
+  {% if pizza_labels %}
+  <div style="background:#fff;border-radius:10px;padding:1.5rem;box-shadow:0 1px 4px rgba(0,0,0,.08);">
+    <h2 style="margin-bottom:1rem;">🥧 Dias parados por equipamento</h2>
+    <canvas id="graficoPizza"></canvas>
+  </div>
+  {% endif %}
+
+  <!-- Gráfico Linha -->
+  {% if linha_labels %}
+  <div style="background:#fff;border-radius:10px;padding:1.5rem;box-shadow:0 1px 4px rgba(0,0,0,.08);">
+    <h2 style="margin-bottom:1rem;">📈 Manutenções por mês</h2>
+    <canvas id="graficoLinha"></canvas>
+  </div>
+  {% endif %}
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+  const cores = [
+    "#1e3a5f","#2d6a9f","#4a9eca","#68b8e0",
+    "#f6ad55","#fc8181","#68d391","#b794f4",
+    "#f687b3","#76e4f7","#fbd38d","#9ae6b4",
+  ];
+
+  {% if pizza_labels %}
+  new Chart(document.getElementById("graficoPizza"), {
+    type: "pie",
+    data: {
+      labels: {{ pizza_labels|safe }},
+      datasets: [{
+        data: {{ pizza_dados|safe }},
+        backgroundColor: cores.slice(0, {{ pizza_labels|length }}),
+        borderColor: "#fff",
+        borderWidth: 2,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { position: "bottom", labels: { font: { size: 12 } } },
+        tooltip: {
+          callbacks: {
+            label: ctx => {
+              const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+              const pct   = ((ctx.parsed / total) * 100).toFixed(1);
+              return ` ${ctx.label}: ${ctx.parsed} dia(s) — ${pct}%`;
+            }
+          }
+        }
+      }
+    },
+    plugins: [{
+      id: "pizzaLabels",
+      afterDatasetDraw(chart) {
+        const { ctx, data } = chart;
+        const total = data.datasets[0].data.reduce((a, b) => a + b, 0);
+        chart.getDatasetMeta(0).data.forEach((arc, i) => {
+          const value   = data.datasets[0].data[i];
+          const pct     = ((value / total) * 100).toFixed(1);
+          if (pct < 3) return; // não exibe % em fatias muito pequenas
+          const { x, y } = arc.tooltipPosition();
+          ctx.save();
+          ctx.fillStyle    = "#fff";
+          ctx.font         = "bold 12px system-ui";
+          ctx.textAlign    = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText(`${pct}%`, x, y);
+          ctx.restore();
+        });
+      }
+    }]
+  });
+  {% endif %}
+
+  {% if linha_labels %}
+  new Chart(document.getElementById("graficoLinha"), {
+    type: "line",
+    data: {
+      labels: {{ linha_labels|safe }},
+      datasets: [{
+        label: "Manutenções registradas",
+        data: {{ linha_dados|safe }},
+        borderColor: "#1e3a5f",
+        backgroundColor: "rgba(30,58,95,0.1)",
+        borderWidth: 2.5,
+        pointBackgroundColor: "#1e3a5f",
+        pointRadius: 5,
+        pointHoverRadius: 7,
+        fill: true,
+        tension: 0.3,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => ` ${ctx.parsed.y} manutenção(ões)`
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: { stepSize: 1 },
+          title: { display: true, text: "Quantidade" }
+        },
+        x: {
+          title: { display: true, text: "Mês" }
+        }
+      }
+    }
+  });
+  {% endif %}
+
+</script>
 {% endif %}
 
 {% endblock %}

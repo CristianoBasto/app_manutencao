@@ -10,6 +10,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+
+import os
+
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -24,8 +27,12 @@ SECRET_KEY = 'django-insecure-_l9*+#7xp)h2l9r9eab_a6zd5s9+aa0pnfv&)qy7!(u=m33qrw
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+ALLOWED_HOSTS = ['*']
 
-ALLOWED_HOSTS = []
+CSRF_TRUSTED_ORIGINS = [
+    'http://127.0.0.1:8000',
+    'http://localhost:8000',
+]
 
 
 # Application definition
@@ -126,17 +133,14 @@ LOGOUT_REDIRECT_URL = "/login/"
 ADMIN_URL = "admin/"
 
 
-import os
-
 # Arquivos estáticos
 STATIC_URL  = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # pasta onde collectstatic vai copiar tudo
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # pasta onde coll>
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'manutencao', 'static'),   # onde está seu logo.png
+    os.path.join(BASE_DIR, 'manutencao', 'static'),   # onde está seu >
 ]
 
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 try:

@@ -27,12 +27,45 @@ def dashboard(request):
     equipamentos = Equipamento.objects.all()
     manutencoes  = Manutencao.objects.select_related("equipamento").all()
 
+    # Dados gráfico pizza — dias parados por equipamento
+    dados_pizza = {}
+    for m in manutencoes.filter(status="concluida"):
+        if m.dias_ate_conclusao and m.dias_ate_conclusao > 0:
+            nome = m.equipamento.nome
+            dados_pizza[nome] = dados_pizza.get(nome, 0) + m.dias_ate_conclusao
+
+    # Dados gráfico linha — número de manutenções por mês (últimos 12 meses)
+    from django.db.models.functions import TruncMonth
+    from django.db.models import Count
+    import json
+
+    por_mes = (
+        Manutencao.objects
+        .annotate(mes=TruncMonth("data_registro"))
+        .values("mes")
+        .annotate(total=Count("id"))
+        .order_by("mes")
+    )
+
+    MESES_PT = {
+        1:"Jan", 2:"Fev", 3:"Mar", 4:"Abr",
+        5:"Mai", 6:"Jun", 7:"Jul", 8:"Ago",
+        9:"Set", 10:"Out", 11:"Nov", 12:"Dez"
+    }
+
+    linha_labels = [f"{MESES_PT[p['mes'].month]}/{p['mes'].year}" for p in por_mes]
+    linha_dados  = [p["total"] for p in por_mes]
+
     context = {
-        "total_equipamentos":    equipamentos.count(),
-        "aguardando_orcamento":  manutencoes.filter(status="aguardando_orcamento").count(),
-        "orcamento_aprovado":    manutencoes.filter(status="orcamento_aprovado").count(),
-        "concluidas":            manutencoes.filter(status="concluida").count(),
-        "proximas":              manutencoes.filter(status="aguardando_orcamento").order_by("data_prevista")[:5],
+        "total_equipamentos":   equipamentos.count(),
+        "aguardando_orcamento": manutencoes.filter(status="aguardando_orcamento").count(),
+        "orcamento_aprovado":   manutencoes.filter(status="orcamento_aprovado").count(),
+        "concluidas":           manutencoes.filter(status="concluida").count(),
+        "proximas":             manutencoes.filter(status="aguardando_orcamento").order_by("data_prevista")[:5],
+        "pizza_labels":         list(dados_pizza.keys()),
+        "pizza_dados":          list(dados_pizza.values()),
+        "linha_labels":         linha_labels,
+        "linha_dados":          linha_dados,
     }
     return render(request, "manutencao/dashboard.html", context)
 
@@ -100,6 +133,7 @@ def cadastrar_manutencao(request):
             equipamento_id=request.POST["equipamento"],
             tipo          =request.POST["tipo"],
             descricao     =request.POST["descricao"],
+            data_registro =request.POST["data_registro"],
             data_prevista =request.POST["data_prevista"],
             responsavel   =request.POST.get("responsavel", ""),
             horimetro     =request.POST.get("horimetro") or None,
@@ -112,6 +146,7 @@ def cadastrar_manutencao(request):
     return render(request, "manutencao/cadastrar_manutencao.html", {
         "equipamentos": Equipamento.objects.all(),
         "oficinas":     Oficina.objects.all(),
+        "today":        timezone.now().date().strftime("%Y-%m-%d"),
     })
 
 
@@ -131,9 +166,9 @@ def cadastrar_equipamento(request):
             nome       =request.POST["nome"],
             localizacao=request.POST["localizacao"],
             descricao  =request.POST.get("descricao", ""),
+            criado_por =request.user,
         )
-        return redirect("dashboard")
-
+        return redirect("lista_equipamentos")
     return render(request, "manutencao/cadastrar_equipamento.html")
 
 
@@ -159,12 +194,12 @@ def editar_manutencao(request, pk):
         m.equipamento_id = request.POST["equipamento"]
         m.tipo           = request.POST["tipo"]
         m.descricao      = request.POST["descricao"]
+        m.data_registro  = request.POST["data_registro"]
         m.data_prevista  = request.POST["data_prevista"]
         m.responsavel    = request.POST.get("responsavel", "")
         m.horimetro      = request.POST.get("horimetro") or None
         m.oficina_id     = request.POST.get("oficina") or None
         m.status         = request.POST["status"]
-        # Se concluindo agora, registra a data
         if m.status == "concluida" and not m.data_realizada:
             m.data_realizada = timezone.now().date()
         m.save()
@@ -176,6 +211,43 @@ def editar_manutencao(request, pk):
         "oficinas":     Oficina.objects.all(),
     }
     return render(request, "manutencao/editar_manutencao.html", context)
+
+
+@login_required
+def editar_equipamento(request, pk):
+    eq = get_object_or_404(Equipamento, pk=pk)
+    if eq.criado_por != request.user:
+        return render(request, "manutencao/sem_permissao.html", {
+            "motivo": "Somente o usuário que cadastrou este equipamento pode editá-lo."
+        })
+    if request.method == "POST":
+        eq.nome        = request.POST["nome"]
+        eq.localizacao = request.POST["localizacao"]
+        eq.descricao   = request.POST.get("descricao", "")
+        eq.save()
+        return redirect("lista_equipamentos")
+    return render(request, "manutencao/editar_equipamento.html", {"eq": eq})
+
+
+@login_required
+def excluir_equipamento(request, pk):
+    eq = get_object_or_404(Equipamento, pk=pk)
+    if eq.criado_por != request.user:
+        return render(request, "manutencao/sem_permissao.html", {
+            "motivo": "Somente o usuário que cadastrou este equipamento pode excluí-lo."
+        })
+    if request.method == "POST":
+        eq.delete()
+        return redirect("lista_equipamentos")
+    return render(request, "manutencao/confirmar_exclusao.html", {
+        "objeto": eq.nome, "voltar": "lista_equipamentos"
+    })
+
+
+@login_required
+def lista_equipamentos(request):
+    equipamentos = Equipamento.objects.all()
+    return render(request, "manutencao/lista_equipamentos.html", {"equipamentos": equipamentos})
 
 
 @login_required
@@ -191,9 +263,41 @@ def cadastrar_oficina(request):
             nome       =request.POST["nome"],
             telefone   =request.POST.get("telefone", ""),
             responsavel=request.POST.get("responsavel", ""),
+            criado_por =request.user,
         )
         return redirect("lista_oficinas")
     return render(request, "manutencao/cadastrar_oficina.html")
+
+
+@login_required
+def editar_oficina(request, pk):
+    of = get_object_or_404(Oficina, pk=pk)
+    if of.criado_por != request.user:
+        return render(request, "manutencao/sem_permissao.html", {
+            "motivo": "Somente o usuário que cadastrou esta oficina pode editá-la."
+        })
+    if request.method == "POST":
+        of.nome        = request.POST["nome"]
+        of.telefone    = request.POST.get("telefone", "")
+        of.responsavel = request.POST.get("responsavel", "")
+        of.save()
+        return redirect("lista_oficinas")
+    return render(request, "manutencao/editar_oficina.html", {"of": of})
+
+
+@login_required
+def excluir_oficina(request, pk):
+    of = get_object_or_404(Oficina, pk=pk)
+    if of.criado_por != request.user:
+        return render(request, "manutencao/sem_permissao.html", {
+            "motivo": "Somente o usuário que cadastrou esta oficina pode excluí-la."
+        })
+    if request.method == "POST":
+        of.delete()
+        return redirect("lista_oficinas")
+    return render(request, "manutencao/confirmar_exclusao.html", {
+        "objeto": of.nome, "voltar": "lista_oficinas"
+    })
 
 
 @login_required
@@ -272,7 +376,7 @@ def exportar_pdf(request):
     ]
 
     if os.path.exists(logo_path):
-        logo = Image(logo_path, width=4.5*cm, height=2.5*cm)
+        logo = Image(logo_path, width=4.5*cm, height=1.8*cm)
         cabecalho = Table(
             [[logo, titulo_bloco]],
             colWidths=[5*cm, None],

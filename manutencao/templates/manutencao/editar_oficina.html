@@ -1,0 +1,31 @@
+<!-- ================================================
+     editar_oficina.html
+     ================================================ -->
+{% extends "manutencao/base.html" %}
+{% block conteudo %}
+
+<h1>✏️ Editar Oficina</h1>
+<div class="form-card">
+  <form method="post">
+    {% csrf_token %}
+    <div class="campo">
+      <label>Nome do Estabelecimento</label>
+      <input type="text" name="nome" required value="{{ of.nome }}"/>
+    </div>
+    <div class="campo">
+      <label>Telefone</label>
+      <input type="text" name="telefone" value="{{ of.telefone }}"/>
+    </div>
+    <div class="campo">
+      <label>Responsável</label>
+      <input type="text" name="responsavel" value="{{ of.responsavel }}"/>
+    </div>
+    <div style="display:flex;gap:1rem;margin-top:.5rem;">
+      <button type="submit" class="btn btn-primary">Salvar alterações</button>
+      <a href="{% url 'lista_oficinas' %}" class="btn" style="background:#e2e8f0;color:#4a5568;">Cancelar</a>
+    </div>
+  </form>
+</div>
+
+{% endblock %}
+

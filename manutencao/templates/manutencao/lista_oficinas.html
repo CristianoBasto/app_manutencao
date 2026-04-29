@@ -15,6 +15,7 @@
       <th>Nome do Estabelecimento</th>
       <th>Telefone</th>
       <th>Responsável</th>
+      <th>Ações</th>
     </tr>
   </thead>
   <tbody>
@@ -23,10 +24,18 @@
       <td>{{ o.nome }}</td>
       <td>{{ o.telefone|default:"—" }}</td>
       <td>{{ o.responsavel|default:"—" }}</td>
+      <td style="display:flex;gap:.4rem;">
+        {% if o.criado_por == request.user %}
+        <a href="{% url 'editar_oficina' o.pk %}" class="btn btn-primary">✏️ Editar</a>
+        <a href="{% url 'excluir_oficina' o.pk %}" class="btn" style="background:#e53e3e;color:#fff;">🗑️ Excluir</a>
+        {% else %}
+        <span style="color:#a0aec0;font-size:.8rem;">—</span>
+        {% endif %}
+      </td>
     </tr>
     {% empty %}
     <tr>
-      <td colspan="3" style="text-align:center;color:#718096;padding:2rem;">
+      <td colspan="4" style="text-align:center;color:#718096;padding:2rem;">
         Nenhuma oficina cadastrada ainda.
       </td>
     </tr>
@@ -35,4 +44,5 @@
 </table>
 
 {% endblock %}
+
 

@@ -1,0 +1,50 @@
+{% extends "manutencao/base.html" %}
+{% block conteudo %}
+
+<div class="toolbar">
+  <h1>🏭 Equipamentos</h1>
+  <a href="{% url 'cadastrar_equipamento' %}" class="btn btn-primary">+ Novo Equipamento</a>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Nome</th>
+      <th>Localização</th>
+      <th>Descrição</th>
+      <th>Manutenções</th>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for eq in equipamentos %}
+    <tr>
+      <td><strong>{{ eq.nome }}</strong></td>
+      <td>{{ eq.localizacao }}</td>
+      <td>{{ eq.descricao|default:"—" }}</td>
+      <td>
+        <a href="{% url 'lista_manutencoes' %}?equipamento={{ eq.pk }}"
+           style="color:#1e3a5f;font-weight:600;text-decoration:none;">
+          {{ eq.manutencoes.count }} registro(s) →
+        </a>
+      </td>
+      <td style="display:flex;gap:.4rem;">
+        {% if eq.criado_por == request.user %}
+        <a href="{% url 'editar_equipamento' eq.pk %}" class="btn btn-primary">✏️ Editar</a>
+        <a href="{% url 'excluir_equipamento' eq.pk %}" class="btn" style="background:#e53e3e;color:#fff;">🗑️ Excluir</a>
+        {% else %}
+        <span style="color:#a0aec0;font-size:.8rem;">—</span>
+        {% endif %}
+      </td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="5" style="text-align:center;color:#718096;padding:2rem;">
+        Nenhum equipamento cadastrado ainda.
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}

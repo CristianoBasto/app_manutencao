@@ -40,6 +40,10 @@
       <textarea name="descricao" required>{{ m.descricao }}</textarea>
     </div>
     <div class="campo">
+      <label>Data de Registro</label>
+      <input type="date" name="data_registro" required value="{{ m.data_registro|date:'Y-m-d' }}"/>
+    </div>
+    <div class="campo">
       <label>Data prevista</label>
       <input type="date" name="data_prevista" required value="{{ m.data_prevista|date:'Y-m-d' }}"/>
     </div>

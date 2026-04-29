@@ -1,3 +1,7 @@
 pip install reportlab
 
 pip install matplotlib
+
+senha admin django servidor Linux: @Aninhoneves#
+
+Aninhoneves#@
