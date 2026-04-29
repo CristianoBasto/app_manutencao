@@ -4,6 +4,8 @@ from django.utils import timezone
 from django.http import HttpResponse
 from .models import Equipamento, Manutencao, Oficina
 
+from django.contrib import  auth
+
 # PDF
 from reportlab.lib.pagesizes import A4, landscape
 from reportlab.lib import colors
@@ -298,6 +300,16 @@ def excluir_oficina(request, pk):
     return render(request, "manutencao/confirmar_exclusao.html", {
         "objeto": of.nome, "voltar": "lista_oficinas"
     })
+
+###  mudança
+
+@login_required(login_url='login')
+def logout(request):
+    auth.logout(request)
+    return redirect('login')
+
+## mudança
+
 
 
 @login_required

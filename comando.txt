@@ -5,3 +5,62 @@ pip install matplotlib
 senha admin django servidor Linux: @Aninhoneves#
 
 Aninhoneves#@
+
+
+
+*  Se fizer mudança no model.py
+ tem que rosar os comando abaixo no servidor, após enviar o git
+
+python manage.py migrate
+python manage.py collectstatic
+sudo systemctl restart gunicorn
+
+
+# Se tiver problema com o css e javascrip da área admin:
+
+rode comandos abaixo
+
+curl -I http://localhost/static/admin/css/base.css
+
+Cola o resultado aqui! 🔍Você disse: csscss
+
+
+HTTP/1.1 403 Forbidden
+Server: nginx/1.24.0 (Ubuntu)
+Date: Mon, 27 Apr 2026 03:40:07 GMT
+Content-Type: text/html
+Content-Length: 162
+Connection: keep-alive00:40
+
+Claude respondeu: 
+O erro 403 Forbidden significa que o Nginx não tem permissão para acessar a pasta.O erro 403 Forbidden significa que o 
+Nginx não tem permissão para acessar a pasta. Corrija assim:
+
+
+Passo 1 — Dê permissão de execução no diretório home:
+bashchmod 755 /home/Cristiano
+
+
+Passo 2 — Permissões na pasta do projeto:
+bashchmod -R 755 /home/cristiano/manutencaoapp
+chmod -R 755 /home/cristiano/manutencaoapp/staticfiles
+
+
+Passo 3 — Dono dos arquivos:
+bashsudo chown -R cristiano:www-data /home/cristiano/manutencaoapp/staticfiles
+Passo 4 — Adicione o usuário nginx ao grupo:
+bashsudo usermod -aG cristiano www-data
+
+
+Passo 5 — Reinicie:
+bashsudo systemctl restart nginx
+
+
+Passo 6 — Teste novamente:
+
+
+bashcurl -I http://localhost/static/admin/css/base.css
+
+
+Deve retornar HTTP/1.1 200 OK. Me avisa o resultado! 🔍
+

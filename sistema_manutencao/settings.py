@@ -140,28 +140,7 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'manutencao', 'static'),   # onde está seu >
 ]
 
-DEBUG = False
 
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'file': {
-            'level': 'ERROR',
-            'class': 'logging.FileHandler',
-            'filename': '/home/cristiano/manutencaoapp/django_errors.log',
-        },
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['file'],
-            'level': 'ERROR',
-            'propagate': True,
-        },
-    },
-}
-
-#fffhh
 
 
 try:
